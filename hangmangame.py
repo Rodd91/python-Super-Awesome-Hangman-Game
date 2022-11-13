@@ -26,16 +26,17 @@ Deepish_Light_Blue=(0, 217, 225)
 #Fonts
 font_multiplier =10
 font_Letters = pygame.font.SysFont(None,font_multiplier*4)
+font_Answer_Letters = pygame.font.SysFont(None,font_multiplier*12)
 #Display Dimensions
 
 displayDimensions = [int(windowWidth),int(windowHeight-40)]
-pygame.display.set_caption('Super Awesome Piñata Game')
+pygame.display.set_caption('Super Awesome Pinata Game') #Piñata
 
 clock = pygame.time.Clock()
-mixer.init()
-mixer.music.Sound("music.mp3")
-mixer.music.play()
-mixer.music.set_volume(0.5)
+# mixer.init()
+# mixer.music.load("music.mp3")
+# mixer.music.play()
+# mixer.music.set_volume(0.5)
 #Button Class
 class Button:
     def __init__(self, color, x,y, width, height, label=''):
@@ -69,10 +70,16 @@ bg = pygame.transform.scale(background, (pygame.display.Info().current_w, pygame
 
 width = 1000
 
+def find(s, ch):
+    return [i for i, ltr in enumerate(s) if ltr == ch]
 def play_game():
+    words=["SCARY", "SPIDER", "MONSTER"]
+    game_word = random.choice(words)
+    wordLength = len(game_word)
     isplaying = True
     letter_btns = []
     blanks = []
+    #BUTTONS 
     alpha_num = 1
     while alpha_num < 11:
         letter_button = Button(Black, displayDimensions[0]*(.205+(alpha_num*.05)), displayDimensions[1]*.70, displayDimensions[0]*.04, displayDimensions[1]*.04,chr(alpha_num+64))
@@ -95,16 +102,34 @@ def play_game():
                 new_screen = [event.size[0],event.size[1]-40]
                 displayDimensions[0] = int(new_screen[0])
                 displayDimensions[1] = int(new_screen[1])
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for BTN in letter_btns:
+                    if BTN.isHovering():
+                        if BTN.unclicked:
+                            BTN.unclicked = False
+                            if BTN.label in game_word:
+                                BTN.color = Green
+                                word_index = game_word.index(BTN.label)
+                            else:
+                                BTN.color = Red
+                            break
+                                    
+                        
             
         screen.blit(bg, (0,0))
+        #BLANKS
         blank_num = 1
         space=0
-        while blank_num < 15:
-            starting_pos = [displayDimensions[0] * (.39+(blank_num*.05))+space,displayDimensions[1]*.51]
-            ending_pos = [starting_pos[0]+(displayDimensions[0]*.03),displayDimensions[1]*.51]
+        while blank_num <= wordLength:
+            starting_pos = [displayDimensions[0] * (.39+(blank_num*.05))+space,displayDimensions[1]*.61]
+            ending_pos = [starting_pos[0]+(displayDimensions[0]*.03),displayDimensions[1]*.61]
             blanks.append(pygame.draw.line(screen, White, starting_pos, ending_pos,3))
             space+=(displayDimensions[0]*.02)
             blank_num +=1
+        #Filling blanks with answers
+        # for pos in range(len(game_word)): FIXMEEEEE PLZZZZ
+        #     letter_fill = font_Answer_Letters.render(game_word[pos],True, Black)
+        #     screen.blit(letter_fill,)
         alpha_num = 1
         while alpha_num < 11:
             letter_btns[alpha_num-1].draw(screen)
@@ -130,9 +155,10 @@ def start_screen():
             if event.type == pygame.MOUSEMOTION:
                 for BTN in startingBtns:
                     if BTN.isHovering():
-                        BTN.color = Red
-                    else:
-                        BTN.color = Black
+                        if BTN.unclicked:
+                            BTN.color = Yellow
+                        else:
+                            BTN.color = Black
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if startingBtns[0].isHovering():
                     print(startingBtns[0].label + " is clicked")
@@ -154,7 +180,7 @@ def start_screen():
             quit_button.draw(screen)
             if quit_button not in startingBtns:
                 startingBtns.append(quit_button)
-            clock.tick(FPS)
+        clock.tick(FPS)
         pygame.display.update()
 
 def gamePlay():
