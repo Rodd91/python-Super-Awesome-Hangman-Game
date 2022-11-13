@@ -35,7 +35,7 @@ pygame.display.set_caption('Super Awesome Pinata Game') #Piñata
 clock = pygame.time.Clock()
 # mixer.init()
 # mixer.music.load("music.mp3")
-# mixer.music.play()
+# mixer.music.play(-1)
 # mixer.music.set_volume(0.5)
 #Button Class
 class Button:
@@ -76,9 +76,11 @@ def play_game():
     words=["SCARY", "SPIDER", "MONSTER"]
     game_word = random.choice(words)
     wordLength = len(game_word)
+    FilledBlanks =[False]*wordLength
     isplaying = True
     letter_btns = []
     blanks = []
+    num_wrong = 0
     #BUTTONS 
     alpha_num = 1
     while alpha_num < 11:
@@ -110,6 +112,10 @@ def play_game():
                             if BTN.label in game_word:
                                 BTN.color = Green
                                 word_index = game_word.index(BTN.label)
+                                for i in find(game_word,game_word[word_index]):
+                                    if FilledBlanks[i] == False:
+                                        FilledBlanks[i] = True
+                                        #FIX ME ADD CORRECT LENGTH TO WIN SCREEN
                             else:
                                 BTN.color = Red
                             break
@@ -127,9 +133,10 @@ def play_game():
             space+=(displayDimensions[0]*.02)
             blank_num +=1
         #Filling blanks with answers
-        # for pos in range(len(game_word)): FIXMEEEEE PLZZZZ
-        #     letter_fill = font_Answer_Letters.render(game_word[pos],True, Black)
-        #     screen.blit(letter_fill,)
+        for pos in range(len(game_word)): 
+            if FilledBlanks[pos]:
+                letter_fill = font_Answer_Letters.render(game_word[pos],True, Black)
+                screen.blit(letter_fill,(blanks[pos].x + (blanks[pos].width/2 - letter_fill.get_width()/2), blanks[pos].y+ (blanks[pos].height/2 - letter_fill.get_height())))
         alpha_num = 1
         while alpha_num < 11:
             letter_btns[alpha_num-1].draw(screen)
