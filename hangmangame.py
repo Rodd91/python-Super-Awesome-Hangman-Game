@@ -1,29 +1,164 @@
 import pygame
-#from pygame import display, movie
+from pygame import mixer
+import os as operatingSystem
+import random
+import time
+import screeninfo
+from screeninfo import get_monitors
 
+operatingSystem.environ['SDL_VIDEO_CENTERED'] = '1'
 
-FPS = 144
+m = get_monitors()[0]
+windowWidth = m.width
+windowHeight = m.height
+
 pygame.init()
+FPS = 120
+#Colors
+White=(255,255,255)
+Black=(0,0,0)
+Blue=(0,0,255)
+Yellow=(255,255,0)
+Red=(255,0,0)
+Green=(0,255,0)
+Subtle_Green=(71, 129, 65)
+Deepish_Light_Blue=(0, 217, 225)
+#Fonts
+font_multiplier =10
+font_Letters = pygame.font.SysFont(None,font_multiplier*4)
+#Display Dimensions
 
-#music = pygame.mixer.Sound("fall.wav")
+displayDimensions = [int(windowWidth),int(windowHeight-40)]
+pygame.display.set_caption('Super Awesome Piñata Game')
 
 clock = pygame.time.Clock()
+mixer.init()
+mixer.music.Sound("music.mp3")
+mixer.music.play()
+mixer.music.set_volume(0.5)
+#Button Class
+class Button:
+    def __init__(self, color, x,y, width, height, label=''):
+        self.label = label
+        self.height = height
+        self.width = width
+        self.y = y
+        self.x = x
+        self.unclicked = True
+        self.color = color
+        self.isHovering()
+    def draw(self, win):
+        pygame.draw.ellipse(win, self.color, (self.x,self.y,self.width,self.height), 0)
+        if self.label != '':
+            text = font_Letters.render(self.label, True, White)
+            win.blit(text, (self.x + (self.width/2 - text.get_width()/2), self.y + (self.height/2 - text.get_height()/2))) #POTENTIAL PROBLEM
+    def isHovering(self):
+        position = pygame.mouse.get_pos()
+        if position[0] > self.x and position[0] < self.x + self.width:
+            if position[1] > self.y and position[1] < self.y + self.height:
+                return True
+        return False
 
 
 
-screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+screen = pygame.display.set_mode(displayDimensions, pygame.RESIZABLE)
+#clock = pygame.display.Clock()
 background = pygame.image.load('fallest2.jpg')
 
 bg = pygame.transform.scale(background, (pygame.display.Info().current_w, pygame.display.Info().current_h))
 
 width = 1000
 
-playing = True
-while playing:
+def play_game():
+    isplaying = True
+    letter_btns = []
+    blanks = []
+    alpha_num = 1
+    while alpha_num < 11:
+        letter_button = Button(Black, displayDimensions[0]*(.205+(alpha_num*.05)), displayDimensions[1]*.70, displayDimensions[0]*.04, displayDimensions[1]*.04,chr(alpha_num+64))
+        if letter_button not in letter_btns:
+            letter_btns.append(letter_button)
+        alpha_num+=1
+    while alpha_num < 21:
+        letter_button = Button(Black, displayDimensions[0]*(.205+((alpha_num-10)*.05)), displayDimensions[1]*.75, displayDimensions[0]*.04, displayDimensions[1]*.04,chr(alpha_num+64))
+        if letter_button not in letter_btns:
+            letter_btns.append(letter_button)
+        alpha_num+=1
+    while alpha_num < 27:
+        letter_button = Button(Black, displayDimensions[0]*(.305+((alpha_num-20)*.05)), displayDimensions[1]*.80, displayDimensions[0]*.04, displayDimensions[1]*.04,chr(alpha_num+64))
+        if letter_button not in letter_btns:
+            letter_btns.append(letter_button)
+        alpha_num+=1
+    while isplaying:
+        for event in pygame.event.get():
+            if event.type == pygame.VIDEORESIZE:
+                new_screen = [event.size[0],event.size[1]-40]
+                displayDimensions[0] = int(new_screen[0])
+                displayDimensions[1] = int(new_screen[1])
+            
+        screen.blit(bg, (0,0))
+        blank_num = 1
+        space=0
+        while blank_num < 15:
+            starting_pos = [displayDimensions[0] * (.39+(blank_num*.05))+space,displayDimensions[1]*.51]
+            ending_pos = [starting_pos[0]+(displayDimensions[0]*.03),displayDimensions[1]*.51]
+            blanks.append(pygame.draw.line(screen, White, starting_pos, ending_pos,3))
+            space+=(displayDimensions[0]*.02)
+            blank_num +=1
+        alpha_num = 1
+        while alpha_num < 11:
+            letter_btns[alpha_num-1].draw(screen)
+            alpha_num +=1
+        while alpha_num < 21:
+            letter_btns[alpha_num-1].draw(screen)
+            alpha_num +=1
+        while alpha_num < 27:
+            letter_btns[alpha_num-1].draw(screen)
+            alpha_num +=1
+        pygame.display.update()
+        
 
-    for event in pygame.event.get():
-        screen.blit(bg, (0, 0))
-    pygame.display.update()
+def start_screen():
+    
+    playing = True
+    startingBtns = [] 
+    while playing:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                #gameEnd()
+                pass
+            if event.type == pygame.MOUSEMOTION:
+                for BTN in startingBtns:
+                    if BTN.isHovering():
+                        BTN.color = Red
+                    else:
+                        BTN.color = Black
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if startingBtns[0].isHovering():
+                    print(startingBtns[0].label + " is clicked")
+                    play_game()
+                if startingBtns[2].isHovering():
+                    #quit_game()
+                    pass
+                    
+            screen.blit(bg, (0,0))
+            start_button = Button(Black,  displayDimensions[0]*.4, displayDimensions[1]*.4, displayDimensions[0]*.2, displayDimensions[1]*.1,"Play Game")
+            start_button.draw(screen)
+            if start_button not in startingBtns:
+                startingBtns.append(start_button)
+            help_button = Button(Black,  displayDimensions[0]*.4, displayDimensions[1]*.55, displayDimensions[0]*.2, displayDimensions[1]*.1,"Help")
+            help_button.draw(screen)
+            if help_button not in startingBtns:
+                startingBtns.append(help_button)
+            quit_button = Button(Black,  displayDimensions[0]*.4, displayDimensions[1]*.7, displayDimensions[0]*.2, displayDimensions[1]*.1,"Quit")
+            quit_button.draw(screen)
+            if quit_button not in startingBtns:
+                startingBtns.append(quit_button)
+            clock.tick(FPS)
+        pygame.display.update()
 
-
-pygame.quit()
+def gamePlay():
+    start_screen()
+    # play_game()
+    # gameOver()
+gamePlay()
