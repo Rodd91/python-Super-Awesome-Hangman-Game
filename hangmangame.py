@@ -6,8 +6,26 @@ import time
 import screeninfo
 from screeninfo import get_monitors
 
+#Pictures
+platform = pygame.image.load('utils/hangpersonparts/hangperson0.png')
+head_pic = pygame.image.load('utils/hangpersonparts/hangperson1.png')
+torso_pic = pygame.image.load('utils/hangpersonparts/hangperson2.png')
+left_arm_pic = pygame.image.load('utils/hangpersonparts/hangperson3.png')
+right_arm_pic = pygame.image.load('utils/hangpersonparts/hangperson4.png')
+legs_pic = pygame.image.load('utils/hangpersonparts/hangperson5.png')
+right_foot_pic = pygame.image.load('utils/hangpersonparts/hangperson6.png')
+left_foot_pic = pygame.image.load('utils/hangpersonparts/hangperson7.png')
+lose_oof = pygame.image.load('utils/hangpersonparts/hangperson_lose_oof.png')
 operatingSystem.environ['SDL_VIDEO_CENTERED'] = '1'
-
+platform = pygame.transform.scale(platform, (700,800))
+head_pic = pygame.transform.scale(head_pic, (700,800))
+torso_pic = pygame.transform.scale(torso_pic, (700,800))
+left_arm_pic= pygame.transform.scale(left_arm_pic, (700,800))
+right_arm_pic = pygame.transform.scale(right_arm_pic, (700,800))
+legs_pic = pygame.transform.scale(legs_pic, (700,800))
+right_foot_pic = pygame.transform.scale(right_foot_pic, (700,800))
+left_foot_pic = pygame.transform.scale(left_foot_pic, (700,800))
+lose_oof = pygame.transform.scale(lose_oof, (700,800))
 m = get_monitors()[0]
 windowWidth = m.width
 windowHeight = m.height
@@ -31,7 +49,9 @@ font_Answer_Letters = pygame.font.SysFont(None,font_multiplier*12)
 
 displayDimensions = [int(windowWidth),int(windowHeight-40)]
 pygame.display.set_caption('Super Awesome Pinata Game') #Piñata
-
+wrong_ctr = 0
+score1 = 0
+score2 = 0
 clock = pygame.time.Clock()
 # mixer.init()
 # mixer.music.load("music.mp3")
@@ -64,7 +84,7 @@ class Button:
 
 screen = pygame.display.set_mode(displayDimensions, pygame.RESIZABLE)
 #clock = pygame.display.Clock()
-background = pygame.image.load('fallest2.jpg')
+background = pygame.image.load('utils/backgrounds/eerie3.jpg')
 
 bg = pygame.transform.scale(background, (pygame.display.Info().current_w, pygame.display.Info().current_h))
 
@@ -72,7 +92,34 @@ width = 1000
 
 def find(s, ch):
     return [i for i, ltr in enumerate(s) if ltr == ch]
+# def quitGame():
+#     pygame.quit()
+#     exit()
+def drawVaquero(window, num_guesses):
+    if num_guesses == 0:
+        screen.blit(platform, (100,50))
+    elif num_guesses == 1:
+        window.blit(head_pic, (100,50))
+    elif num_guesses == 2: 
+        window.blit(torso_pic, (100,50))
+    elif num_guesses == 3:
+        window.blit(left_arm_pic, (100,50))
+    elif num_guesses == 4:
+        window.blit(right_arm_pic, (100,50))
+    elif num_guesses == 5:
+        window.blit(legs_pic, (100,50))
+    elif num_guesses == 6:
+        window.blit(right_foot_pic, (100,50))
+    elif num_guesses == 7:
+        window.blit(left_foot_pic, (100,50))
+    else:
+        window.blit(lose_oof, (100,50))
+
 def play_game():
+    #Variables 
+    global score1
+    global score2
+    global wrong_ctr
     words=["SCARY", "SPIDER", "MONSTER"]
     game_word = random.choice(words)
     wordLength = len(game_word)
@@ -80,7 +127,6 @@ def play_game():
     isplaying = True
     letter_btns = []
     blanks = []
-    num_wrong = 0
     #BUTTONS 
     alpha_num = 1
     while alpha_num < 11:
@@ -115,14 +161,23 @@ def play_game():
                                 for i in find(game_word,game_word[word_index]):
                                     if FilledBlanks[i] == False:
                                         FilledBlanks[i] = True
+                                        score1+=1
                                         #FIX ME ADD CORRECT LENGTH TO WIN SCREEN
                             else:
                                 BTN.color = Red
+                                wrong_ctr+=1
+                                if wrong_ctr > 8:
+                                    wrong_ctr = 0
+                                    play_game() #FIXME 
                             break
                                     
                         
             
         screen.blit(bg, (0,0))
+        drawVaquero(screen, wrong_ctr)
+        score = font_Letters.render("Score: " + str(score1), True, White)
+        screen.blit(score, (1600, 900))
+
         #BLANKS
         blank_num = 1
         space=0
@@ -147,6 +202,7 @@ def play_game():
         while alpha_num < 27:
             letter_btns[alpha_num-1].draw(screen)
             alpha_num +=1
+        drawVaquero(screen, wrong_ctr)
         pygame.display.update()
         
 
@@ -192,6 +248,4 @@ def start_screen():
 
 def gamePlay():
     start_screen()
-    # play_game()
-    # gameOver()
 gamePlay()
