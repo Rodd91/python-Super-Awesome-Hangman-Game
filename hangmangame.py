@@ -52,6 +52,9 @@ pygame.display.set_caption('Super Awesome Pinata Game') #Piñata
 wrong_ctr = 0
 score1 = 0
 score2 = 0
+Player1 = True
+Player2 = False
+rounds = 0
 clock = pygame.time.Clock()
 # mixer.init()
 # mixer.music.load("music.mp3")
@@ -85,9 +88,9 @@ class Button:
 screen = pygame.display.set_mode(displayDimensions, pygame.RESIZABLE)
 #clock = pygame.display.Clock()
 background = pygame.image.load('utils/backgrounds/eerie3.jpg')
-
+explode = pygame.image.load('utils/backgrounds/explode.png')
 bg = pygame.transform.scale(background, (pygame.display.Info().current_w, pygame.display.Info().current_h))
-
+explodebg = pygame.transform.scale(background, (pygame.display.Info().current_w, pygame.display.Info().current_h))
 width = 1000
 
 def find(s, ch):
@@ -120,6 +123,10 @@ def play_game():
     global score1
     global score2
     global wrong_ctr
+    ProperGuess = 0
+    global Player1
+    global Player2
+    global rounds
     words=["SCARY", "SPIDER", "MONSTER"]
     game_word = random.choice(words)
     wordLength = len(game_word)
@@ -161,23 +168,70 @@ def play_game():
                                 for i in find(game_word,game_word[word_index]):
                                     if FilledBlanks[i] == False:
                                         FilledBlanks[i] = True
-                                        score1+=1
+                                        if Player1 == True:
+                                            score1+=1
+                                        elif Player2 == True:
+                                            score2+=1
+                                        ProperGuess+=1
+                                        if ProperGuess == (len(game_word)):
+                                            ProperGuess = 0
+                                            rounds+=1
+                                            wrong_ctr = 0
+                                            if Player1 == True:
+                                                Player2 = True
+                                                Player1 = False
+
+                                            elif Player2 == True:
+                                                Player1 = True
+                                                Player2 = False
+                                            play_game()
+
+                                        if wrong_ctr == 8:
+                                             rounds+=1
+                                             wrong_ctr = 0
+                                             score1 = 0
+                                             if Player1 == True:
+                                                Player2 = True
+                                                Player1 = False
+
+                                             elif Player2 == True:
+                                                Player1 = True
+                                                Player2 = False
+                                             play_game() 
                                         #FIX ME ADD CORRECT LENGTH TO WIN SCREEN
                             else:
                                 BTN.color = Red
                                 wrong_ctr+=1
                                 if wrong_ctr > 8:
+                                    rounds+=1
                                     wrong_ctr = 0
-                                    play_game() #FIXME 
+                                    if Player1 == True:
+                                        Player2 = True
+                                        Player1 = False
+
+                                    elif Player2 == True:
+                                        Player1 = True
+                                        Player2 = False
+                                    play_game() 
+
                             break
-                                    
+        if rounds >= 2:
+            end_screen()    
+            
+
                         
             
         screen.blit(bg, (0,0))
         drawVaquero(screen, wrong_ctr)
-        score = font_Letters.render("Score: " + str(score1), True, White)
+        score = font_Letters.render("Player1 Score: " + str(score1), True, White)
         screen.blit(score, (1600, 900))
 
+        scoreOth = font_Letters.render("Player2 Score: " + str(score2), True, White)
+        screen.blit(scoreOth, (1600, 950))
+        
+        roundslimit = font_Letters.render("ROUND: " + str(rounds), True, White)
+
+        screen.blit(roundslimit, (1600, 700))
         #BLANKS
         blank_num = 1
         space=0
@@ -205,6 +259,31 @@ def play_game():
         drawVaquero(screen, wrong_ctr)
         pygame.display.update()
         
+def end_screen():
+    global score1
+    global score2
+    screen.blit(bg, (0,0))
+    score = font_Letters.render("Player1 Score: " + str(score1), True, White)
+    screen.blit(score, (800, 500))
+
+    scoreOth = font_Letters.render("Player2 Score: " + str(score2), True, White)
+    screen.blit(scoreOth, (800, 550))
+
+    if score1 > score2:
+        scoreWinner = font_Letters.render("Player 1 WINS THE GAME: " + str(score1), True, White)
+    elif score2 > score1:
+        scoreWinner = font_Letters.render("Player 2 WINS THE GAME: " + str(score2), True, White)
+    elif score1 == score2:
+        scoreWinner = font_Letters.render("BOTH PLAYERS TIED", True, White)
+    screen.blit(scoreWinner, (800, 600))
+    ToQuit = font_Letters.render("PRESS Q TO QUIT THE GAME", True, White)
+    screen.blit(ToQuit, (800, 700))
+    pygame.key.set_repeat(1,25)
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+          if event.key == pygame.K_q:
+             pygame.quit()
+    pygame.display.update()
 
 def start_screen():
     
