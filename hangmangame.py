@@ -5,7 +5,9 @@ import random
 import time
 import screeninfo
 from screeninfo import get_monitors
-
+m = get_monitors()[0]
+windowWidth = m.width
+windowHeight = m.height
 #Pictures
 platform = pygame.image.load('utils/hangpersonparts/hangperson0.png')
 head_pic = pygame.image.load('utils/hangpersonparts/hangperson1.png')
@@ -17,18 +19,16 @@ right_foot_pic = pygame.image.load('utils/hangpersonparts/hangperson6.png')
 left_foot_pic = pygame.image.load('utils/hangpersonparts/hangperson7.png')
 lose_oof = pygame.image.load('utils/hangpersonparts/hangperson_lose_oof.png')
 operatingSystem.environ['SDL_VIDEO_CENTERED'] = '1'
-platform = pygame.transform.scale(platform, (700,800))
-head_pic = pygame.transform.scale(head_pic, (700,800))
-torso_pic = pygame.transform.scale(torso_pic, (700,800))
-left_arm_pic= pygame.transform.scale(left_arm_pic, (700,800))
-right_arm_pic = pygame.transform.scale(right_arm_pic, (700,800))
-legs_pic = pygame.transform.scale(legs_pic, (700,800))
-right_foot_pic = pygame.transform.scale(right_foot_pic, (700,800))
-left_foot_pic = pygame.transform.scale(left_foot_pic, (700,800))
-lose_oof = pygame.transform.scale(lose_oof, (700,800))
-m = get_monitors()[0]
-windowWidth = m.width
-windowHeight = m.height
+platform = pygame.transform.scale(platform, (windowWidth/2,windowHeight/2))
+head_pic = pygame.transform.scale(head_pic, (windowWidth/2,windowHeight/2))
+torso_pic = pygame.transform.scale(torso_pic, (windowWidth/2,windowHeight/2))
+left_arm_pic= pygame.transform.scale(left_arm_pic, (windowWidth/2,windowHeight/2))
+right_arm_pic = pygame.transform.scale(right_arm_pic, (windowWidth/2,windowHeight/2))
+legs_pic = pygame.transform.scale(legs_pic, (windowWidth/2,windowHeight/2))
+right_foot_pic = pygame.transform.scale(right_foot_pic, (windowWidth/2,windowHeight/2))
+left_foot_pic = pygame.transform.scale(left_foot_pic, (windowWidth/2,windowHeight/2))
+lose_oof = pygame.transform.scale(lose_oof, (windowWidth/2,windowHeight/2))
+
 
 pygame.init()
 FPS = 120
@@ -55,6 +55,7 @@ score2 = 0
 Player1 = True
 Player2 = False
 rounds = 0
+testing = True #if true play_game display updates
 clock = pygame.time.Clock()
 # mixer.init()
 # mixer.music.load("music.mp3")
@@ -100,29 +101,30 @@ def find(s, ch):
 #     exit()
 def drawVaquero(window, num_guesses):
     if num_guesses == 0:
-        screen.blit(platform, (100,50))
+        screen.blit(platform, (windowWidth/20,windowHeight/12))
     elif num_guesses == 1:
-        window.blit(head_pic, (100,50))
+        window.blit(head_pic, (windowWidth/20,windowHeight/12))
     elif num_guesses == 2: 
-        window.blit(torso_pic, (100,50))
+        window.blit(torso_pic, (windowWidth/20,windowHeight/12))
     elif num_guesses == 3:
-        window.blit(left_arm_pic, (100,50))
+        window.blit(left_arm_pic, (windowWidth/20,windowHeight/12))
     elif num_guesses == 4:
-        window.blit(right_arm_pic, (100,50))
+        window.blit(right_arm_pic, (windowWidth/20,windowHeight/12))
     elif num_guesses == 5:
-        window.blit(legs_pic, (100,50))
+        window.blit(legs_pic, (windowWidth/20,windowHeight/12))
     elif num_guesses == 6:
-        window.blit(right_foot_pic, (100,50))
+        window.blit(right_foot_pic, (windowWidth/20,windowHeight/12))
     elif num_guesses == 7:
-        window.blit(left_foot_pic, (100,50))
+        window.blit(left_foot_pic, (windowWidth/20,windowHeight/12))
     else:
-        window.blit(lose_oof, (100,50))
+        window.blit(lose_oof, (windowWidth/20,windowHeight/12))
 
 def play_game():
     #Variables 
     global score1
     global score2
     global wrong_ctr
+    global testing
     ProperGuess = 0
     global Player1
     global Player2
@@ -215,23 +217,26 @@ def play_game():
                                     play_game() 
 
                             break
-        if rounds >= 2:
+        if rounds >= 1:
+            screen.blit(bg, (0,0))
+            alpha_num = 0
+            wrong_ctr = 0
+            testing = False
             end_screen()    
-            
 
                         
             
         screen.blit(bg, (0,0))
         drawVaquero(screen, wrong_ctr)
         score = font_Letters.render("Player1 Score: " + str(score1), True, White)
-        screen.blit(score, (1600, 900))
+        screen.blit(score, (windowWidth-350,windowHeight-250))
 
         scoreOth = font_Letters.render("Player2 Score: " + str(score2), True, White)
-        screen.blit(scoreOth, (1600, 950))
+        screen.blit(scoreOth, (windowWidth-350,windowHeight-200))
         
         roundslimit = font_Letters.render("ROUND: " + str(rounds), True, White)
 
-        screen.blit(roundslimit, (1600, 700))
+        screen.blit(roundslimit, (windowWidth-350,windowHeight-150))
         #BLANKS
         blank_num = 1
         space=0
@@ -257,34 +262,35 @@ def play_game():
             letter_btns[alpha_num-1].draw(screen)
             alpha_num +=1
         drawVaquero(screen, wrong_ctr)
-        pygame.display.update()
+        if testing == True:
+            pygame.display.update()
         
 def end_screen():
     global score1
     global score2
-    screen.blit(bg, (0,0))
-    score = font_Letters.render("Player1 Score: " + str(score1), True, White)
-    screen.blit(score, (800, 500))
+    global testing
+    screen.blit(bg,(0,0))
+    score = font_Letters.render("Player1 Score: " + str(score1), True, Red)
+    screen.blit(score, (windowWidth/2, windowHeight/5))
 
-    scoreOth = font_Letters.render("Player2 Score: " + str(score2), True, White)
-    screen.blit(scoreOth, (800, 550))
+    scoreOth = font_Letters.render("Player2 Score: " + str(score2), True, Red)
+    screen.blit(scoreOth, (windowWidth/2, windowHeight/4))
 
     if score1 > score2:
-        scoreWinner = font_Letters.render("Player 1 WINS THE GAME: " + str(score1), True, White)
+        scoreWinner = font_Letters.render("Player 1 WINS THE GAME: " + str(score1), True, Red)
     elif score2 > score1:
-        scoreWinner = font_Letters.render("Player 2 WINS THE GAME: " + str(score2), True, White)
+        scoreWinner = font_Letters.render("Player 2 WINS THE GAME: " + str(score2), True, Red)
     elif score1 == score2:
-        scoreWinner = font_Letters.render("BOTH PLAYERS TIED", True, White)
-    screen.blit(scoreWinner, (800, 600))
-    ToQuit = font_Letters.render("PRESS Q TO QUIT THE GAME", True, White)
-    screen.blit(ToQuit, (800, 700))
+        scoreWinner = font_Letters.render("BOTH PLAYERS TIED", True, Red)
+    screen.blit(scoreWinner, (windowWidth/2, windowHeight/3))
+    ToQuit = font_Letters.render("PRESS Q TO QUIT THE GAME", True, Red)
+    screen.blit(ToQuit, (windowWidth/2, windowHeight/2.5))
     pygame.key.set_repeat(1,25)
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
           if event.key == pygame.K_q:
              pygame.quit()
     pygame.display.update()
-
 def start_screen():
     
     playing = True
