@@ -18,7 +18,7 @@ legs_pic = pygame.image.load('utils/hangpersonparts/hangperson5.png')
 right_foot_pic = pygame.image.load('utils/hangpersonparts/hangperson6.png')
 left_foot_pic = pygame.image.load('utils/hangpersonparts/hangperson7.png')
 lose_oof = pygame.image.load('utils/hangpersonparts/hangperson_lose_oof.png')
-operatingSystem.environ['SDL_VIDEO_CENTERED'] = '1'
+#operatingSystem.environ['SDL_VIDEO_CENTERED'] = '1'
 platform = pygame.transform.scale(platform, (windowWidth/3,windowHeight/2))
 head_pic = pygame.transform.scale(head_pic, (windowWidth/3,windowHeight/2))
 torso_pic = pygame.transform.scale(torso_pic, (windowWidth/3,windowHeight/2))
@@ -48,7 +48,7 @@ font_Answer_Letters = pygame.font.SysFont(None,font_multiplier*12)
 #Display Dimensions
 
 displayDimensions = (1600,1000)#[int(windowWidth),int(windowHeight-40)]
-pygame.display.set_caption('Super Awesome Pinata Game') #Piñata
+pygame.display.set_caption('Super Awesome Family Feud Hangperson Piñata Game') #Piñata
 wrong_ctr = 0
 score1 = 0
 score2 = 0
@@ -58,7 +58,7 @@ rounds = 0
 testing = True #if true play_game display updates
 clock = pygame.time.Clock()
 # mixer.init()
-# mixer.music.load("music.mp3")
+# mixer.music.load("utils/sound/scary.mp3")
 # mixer.music.play(-1)
 # mixer.music.set_volume(0.5)
 #Button Class
@@ -121,6 +121,7 @@ def drawVaquero(window, num_guesses):
 
 def play_game():
     #Variables 
+    
     global score1
     global score2
     global wrong_ctr
@@ -129,13 +130,14 @@ def play_game():
     global Player1
     global Player2
     global rounds
-    words=["SCARY", "SPIDER", "MONSTER"]
+    words= open('utils/words/halloweenList.txt').readlines()
     game_word = random.choice(words)
     wordLength = len(game_word)
     FilledBlanks =[False]*wordLength
     isplaying = True
     letter_btns = []
     blanks = []
+    print(game_word) ##FIXME
     #BUTTONS 
     alpha_num = 1
     while alpha_num < 11:
@@ -171,15 +173,14 @@ def play_game():
                                     if FilledBlanks[i] == False:
                                         FilledBlanks[i] = True
                                         if Player1 == True:
+                                            #screen.blit(turn, (windowWidth-650,windowHeight-150))
                                             score1+=1
-                                            Player2 = True
                                             Player1 = True
                                         elif Player2 == True:
                                             score2+=1
-                                            Player1 = True
-                                            Player2 = False
+                                            Player2 = True
                                         ProperGuess+=1
-                                        if ProperGuess == (len(game_word)):
+                                        if ProperGuess == (len(game_word)-1):
                                             ProperGuess = 0
                                             rounds+=1
                                             wrong_ctr = 0
@@ -189,32 +190,25 @@ def play_game():
                                              rounds+=1
                                              wrong_ctr = 0
                                              score1 = 0
-                                             if Player1 == True:
-                                                Player2 = True
-                                                Player1 = False
-
-                                             elif Player2 == True:
-                                                Player1 = True
-                                                Player2 = False
                                              play_game() 
                                         #FIX ME ADD CORRECT LENGTH TO WIN SCREEN
                             else:
                                 BTN.color = Red
                                 wrong_ctr+=1
+                                if Player1 == True:
+                                     Player2 = True
+                                     Player1 = False
+
+                                elif Player2 == True:
+                                    Player1 = True
+                                    Player2 = False
                                 if wrong_ctr > 8:
                                     rounds+=1
                                     wrong_ctr = 0
-                                    if Player1 == True:
-                                        Player2 = True
-                                        Player1 = False
-
-                                    elif Player2 == True:
-                                        Player1 = True
-                                        Player2 = False
                                     play_game() 
 
                             break
-        if rounds >= 1:
+        if rounds >= 3:
             screen.blit(bg, (0,0))
             alpha_num = 0
             wrong_ctr = 0
@@ -227,7 +221,6 @@ def play_game():
         drawVaquero(screen, wrong_ctr)
         score = font_Letters.render("Player1 Score: " + str(score1), True, White)
         screen.blit(score, (windowWidth-650,windowHeight-250))
-
         scoreOth = font_Letters.render("Player2 Score: " + str(score2), True, White)
         screen.blit(scoreOth, (windowWidth-650,windowHeight-200))
         
@@ -237,7 +230,7 @@ def play_game():
         #BLANKS
         blank_num = 1
         space=0
-        while blank_num <= wordLength:
+        while blank_num < wordLength:
             starting_pos = [displayDimensions[0] * (.39+(blank_num*.05))+space,displayDimensions[1]*.61]
             ending_pos = [starting_pos[0]+(displayDimensions[0]*.03),displayDimensions[1]*.61]
             blanks.append(pygame.draw.line(screen, White, starting_pos, ending_pos,3))
