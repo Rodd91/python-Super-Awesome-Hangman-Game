@@ -59,7 +59,7 @@ testing = True #if true play_game display updates
 clock = pygame.time.Clock()
 # mixer.init()
 # mixer.music.load("utils/sound/scary.mp3")
-# mixer.music.play(-1)
+# mixer.music.play(-1, 0.0)
 # mixer.music.set_volume(0.5)
 #Button Class
 class Button:
@@ -118,8 +118,141 @@ def drawVaquero(window, num_guesses):
         window.blit(left_foot_pic, (windowWidth/25,windowHeight/12))
     else:
         window.blit(lose_oof, (windowWidth/25,windowHeight/12))
+def christmas_game():
+    global score1
+    global score2
+    global wrong_ctr
+    global testing
+    ProperGuess = 0
+    global Player1
+    global Player2
+    global rounds
+    words= open('utils/words/halloweenList.txt').readlines()
+    game_word = random.choice(words)
+    wordLength = len(game_word)
+    FilledBlanks =[False]*wordLength
+    isplaying = True
+    letter_btns = []
+    blanks = []
+    print(game_word) ##FIXME
+    #BUTTONS 
+    alpha_num = 1
+    while alpha_num < 11:
+        letter_button = Button(Black, displayDimensions[0]*(.205+(alpha_num*.05)), displayDimensions[1]*.70, displayDimensions[0]*.04, displayDimensions[1]*.04,chr(alpha_num+64))
+        if letter_button not in letter_btns:
+            letter_btns.append(letter_button)
+        alpha_num+=1
+    while alpha_num < 21:
+        letter_button = Button(Black, displayDimensions[0]*(.205+((alpha_num-10)*.05)), displayDimensions[1]*.75, displayDimensions[0]*.04, displayDimensions[1]*.04,chr(alpha_num+64))
+        if letter_button not in letter_btns:
+            letter_btns.append(letter_button)
+        alpha_num+=1
+    while alpha_num < 27:
+        letter_button = Button(Black, displayDimensions[0]*(.305+((alpha_num-20)*.05)), displayDimensions[1]*.80, displayDimensions[0]*.04, displayDimensions[1]*.04,chr(alpha_num+64))
+        if letter_button not in letter_btns:
+            letter_btns.append(letter_button)
+        alpha_num+=1
+    while isplaying:
+        for event in pygame.event.get():
+            if event.type == pygame.VIDEORESIZE:
+                new_screen = [event.size[0],event.size[1]-40]
+                displayDimensions[0] = int(new_screen[0])
+                displayDimensions[1] = int(new_screen[1])
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for BTN in letter_btns:
+                    if BTN.isHovering():
+                        if BTN.unclicked:
+                            BTN.unclicked = False
+                            if BTN.label in game_word:
+                                BTN.color = Green
+                                word_index = game_word.index(BTN.label)
+                                for i in find(game_word,game_word[word_index]):
+                                    if FilledBlanks[i] == False:
+                                        FilledBlanks[i] = True
+                                        if Player1 == True:
+                                            #screen.blit(turn, (windowWidth-650,windowHeight-150))
+                                            score1+=1
+                                            Player1 = True
+                                        elif Player2 == True:
+                                            score2+=1
+                                            Player2 = True
+                                        ProperGuess+=1
+                                        if ProperGuess == (len(game_word)-1):
+                                            ProperGuess = 0
+                                            rounds+=1
+                                            wrong_ctr = 0
+                                            christmas_game()
 
-def play_game():
+                                        if wrong_ctr == 8:
+                                             rounds+=1
+                                             wrong_ctr = 0
+                                             score1 = 0
+                                             christmas_game() 
+                                        #FIX ME ADD CORRECT LENGTH TO WIN SCREEN
+                            else:
+                                BTN.color = Red
+                                wrong_ctr+=1
+                                if Player1 == True:
+                                     Player2 = True
+                                     Player1 = False
+
+                                elif Player2 == True:
+                                    Player1 = True
+                                    Player2 = False
+                                if wrong_ctr > 8:
+                                    rounds+=1
+                                    wrong_ctr = 0
+                                    christmas_game() 
+
+                            break
+        if rounds >= 3:
+            screen.blit(bgChristmas, (0,0))
+            alpha_num = 0
+            wrong_ctr = 0
+            testing = False
+            end_screen()    
+
+                        
+            
+        screen.blit(bgChristmas, (0,0))
+        drawVaquero(screen, wrong_ctr)
+        score = font_Letters.render("Player1 Score: " + str(score1), True, Green)
+        screen.blit(score, (windowWidth-650,windowHeight-250))
+        scoreOth = font_Letters.render("Player2 Score: " + str(score2), True, Red)
+        screen.blit(scoreOth, (windowWidth-650,windowHeight-200))
+        
+        roundslimit = font_Letters.render("ROUND: " + str(rounds), True, White)
+
+        screen.blit(roundslimit, (windowWidth-650,windowHeight-150))
+        #BLANKS
+        blank_num = 1
+        space=0
+        while blank_num < wordLength:
+            starting_pos = [displayDimensions[0] * (.39+(blank_num*.05))+space,displayDimensions[1]*.61]
+            ending_pos = [starting_pos[0]+(displayDimensions[0]*.03),displayDimensions[1]*.61]
+            blanks.append(pygame.draw.line(screen, White, starting_pos, ending_pos,3))
+            space+=(displayDimensions[0]*.02)
+            blank_num +=1
+        #Filling blanks with answers
+        for pos in range(len(game_word)): 
+            if FilledBlanks[pos]:
+                letter_fill = font_Answer_Letters.render(game_word[pos],True, Black)
+                screen.blit(letter_fill,(blanks[pos].x + (blanks[pos].width/2 - letter_fill.get_width()/2), blanks[pos].y+ (blanks[pos].height/2 - letter_fill.get_height())))
+        alpha_num = 1
+        while alpha_num < 11:
+            letter_btns[alpha_num-1].draw(screen)
+            alpha_num +=1
+        while alpha_num < 21:
+            letter_btns[alpha_num-1].draw(screen)
+            alpha_num +=1
+        while alpha_num < 27:
+            letter_btns[alpha_num-1].draw(screen)
+            alpha_num +=1
+        drawVaquero(screen, wrong_ctr)
+        if testing == True:
+            pygame.display.update()
+           
+def halloween_game():
     #Variables 
     
     global score1
@@ -184,13 +317,13 @@ def play_game():
                                             ProperGuess = 0
                                             rounds+=1
                                             wrong_ctr = 0
-                                            play_game()
+                                            halloween_game()
 
                                         if wrong_ctr == 8:
                                              rounds+=1
                                              wrong_ctr = 0
                                              score1 = 0
-                                             play_game() 
+                                             halloween_game() 
                                         #FIX ME ADD CORRECT LENGTH TO WIN SCREEN
                             else:
                                 BTN.color = Red
@@ -205,7 +338,7 @@ def play_game():
                                 if wrong_ctr > 8:
                                     rounds+=1
                                     wrong_ctr = 0
-                                    play_game() 
+                                    halloween_game() 
 
                             break
         if rounds >= 3:
@@ -300,7 +433,7 @@ def start_screen():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if startingBtns[0].isHovering():
                     print(startingBtns[0].label + " is clicked")
-                    play_game()
+                    christmas_game()
                 if startingBtns[2].isHovering():
                     #quit_game()
                     pass
