@@ -19,15 +19,15 @@ right_foot_pic = pygame.image.load('utils/hangpersonparts/hangperson6.png')
 left_foot_pic = pygame.image.load('utils/hangpersonparts/hangperson7.png')
 lose_oof = pygame.image.load('utils/hangpersonparts/hangperson_lose_oof.png')
 operatingSystem.environ['SDL_VIDEO_CENTERED'] = '1'
-platform = pygame.transform.scale(platform, (windowWidth/2,windowHeight/2))
-head_pic = pygame.transform.scale(head_pic, (windowWidth/2,windowHeight/2))
-torso_pic = pygame.transform.scale(torso_pic, (windowWidth/2,windowHeight/2))
-left_arm_pic= pygame.transform.scale(left_arm_pic, (windowWidth/2,windowHeight/2))
-right_arm_pic = pygame.transform.scale(right_arm_pic, (windowWidth/2,windowHeight/2))
-legs_pic = pygame.transform.scale(legs_pic, (windowWidth/2,windowHeight/2))
-right_foot_pic = pygame.transform.scale(right_foot_pic, (windowWidth/2,windowHeight/2))
-left_foot_pic = pygame.transform.scale(left_foot_pic, (windowWidth/2,windowHeight/2))
-lose_oof = pygame.transform.scale(lose_oof, (windowWidth/2,windowHeight/2))
+platform = pygame.transform.scale(platform, (windowWidth/3,windowHeight/2))
+head_pic = pygame.transform.scale(head_pic, (windowWidth/3,windowHeight/2))
+torso_pic = pygame.transform.scale(torso_pic, (windowWidth/3,windowHeight/2))
+left_arm_pic= pygame.transform.scale(left_arm_pic, (windowWidth/3,windowHeight/2))
+right_arm_pic = pygame.transform.scale(right_arm_pic, (windowWidth/3,windowHeight/2))
+legs_pic = pygame.transform.scale(legs_pic, (windowWidth/3,windowHeight/2))
+right_foot_pic = pygame.transform.scale(right_foot_pic, (windowWidth/3,windowHeight/2))
+left_foot_pic = pygame.transform.scale(left_foot_pic, (windowWidth/3,windowHeight/2))
+lose_oof = pygame.transform.scale(lose_oof, (windowWidth/3,windowHeight/2))
 
 
 pygame.init()
@@ -47,7 +47,7 @@ font_Letters = pygame.font.SysFont(None,font_multiplier*4)
 font_Answer_Letters = pygame.font.SysFont(None,font_multiplier*12)
 #Display Dimensions
 
-displayDimensions = [int(windowWidth),int(windowHeight-40)]
+displayDimensions = (1600,1000)#[int(windowWidth),int(windowHeight-40)]
 pygame.display.set_caption('Super Awesome Pinata Game') #Piñata
 wrong_ctr = 0
 score1 = 0
@@ -89,9 +89,9 @@ class Button:
 screen = pygame.display.set_mode(displayDimensions, pygame.RESIZABLE)
 #clock = pygame.display.Clock()
 background = pygame.image.load('utils/backgrounds/eerie3.jpg')
-explode = pygame.image.load('utils/backgrounds/explode.png')
+backgroundChristmas = pygame.image.load('utils/backgrounds/christmas_fireplace.jpg')
 bg = pygame.transform.scale(background, (pygame.display.Info().current_w, pygame.display.Info().current_h))
-explodebg = pygame.transform.scale(background, (pygame.display.Info().current_w, pygame.display.Info().current_h))
+bgChristmas = pygame.transform.scale(backgroundChristmas, (pygame.display.Info().current_w, pygame.display.Info().current_h))
 width = 1000
 
 def find(s, ch):
@@ -101,23 +101,23 @@ def find(s, ch):
 #     exit()
 def drawVaquero(window, num_guesses):
     if num_guesses == 0:
-        screen.blit(platform, (windowWidth/20,windowHeight/12))
+        screen.blit(platform, (windowWidth/25,windowHeight/12))
     elif num_guesses == 1:
-        window.blit(head_pic, (windowWidth/20,windowHeight/12))
+        window.blit(head_pic, (windowWidth/25,windowHeight/12))
     elif num_guesses == 2: 
-        window.blit(torso_pic, (windowWidth/20,windowHeight/12))
+        window.blit(torso_pic, (windowWidth/25,windowHeight/12))
     elif num_guesses == 3:
-        window.blit(left_arm_pic, (windowWidth/20,windowHeight/12))
+        window.blit(left_arm_pic, (windowWidth/25,windowHeight/12))
     elif num_guesses == 4:
-        window.blit(right_arm_pic, (windowWidth/20,windowHeight/12))
+        window.blit(right_arm_pic, (windowWidth/25,windowHeight/12))
     elif num_guesses == 5:
-        window.blit(legs_pic, (windowWidth/20,windowHeight/12))
+        window.blit(legs_pic, (windowWidth/25,windowHeight/12))
     elif num_guesses == 6:
-        window.blit(right_foot_pic, (windowWidth/20,windowHeight/12))
+        window.blit(right_foot_pic, (windowWidth/25,windowHeight/12))
     elif num_guesses == 7:
-        window.blit(left_foot_pic, (windowWidth/20,windowHeight/12))
+        window.blit(left_foot_pic, (windowWidth/25,windowHeight/12))
     else:
-        window.blit(lose_oof, (windowWidth/20,windowHeight/12))
+        window.blit(lose_oof, (windowWidth/25,windowHeight/12))
 
 def play_game():
     #Variables 
@@ -172,20 +172,17 @@ def play_game():
                                         FilledBlanks[i] = True
                                         if Player1 == True:
                                             score1+=1
+                                            Player2 = True
+                                            Player1 = True
                                         elif Player2 == True:
                                             score2+=1
+                                            Player1 = True
+                                            Player2 = False
                                         ProperGuess+=1
                                         if ProperGuess == (len(game_word)):
                                             ProperGuess = 0
                                             rounds+=1
                                             wrong_ctr = 0
-                                            if Player1 == True:
-                                                Player2 = True
-                                                Player1 = False
-
-                                            elif Player2 == True:
-                                                Player1 = True
-                                                Player2 = False
                                             play_game()
 
                                         if wrong_ctr == 8:
@@ -229,14 +226,14 @@ def play_game():
         screen.blit(bg, (0,0))
         drawVaquero(screen, wrong_ctr)
         score = font_Letters.render("Player1 Score: " + str(score1), True, White)
-        screen.blit(score, (windowWidth-350,windowHeight-250))
+        screen.blit(score, (windowWidth-650,windowHeight-250))
 
         scoreOth = font_Letters.render("Player2 Score: " + str(score2), True, White)
-        screen.blit(scoreOth, (windowWidth-350,windowHeight-200))
+        screen.blit(scoreOth, (windowWidth-650,windowHeight-200))
         
         roundslimit = font_Letters.render("ROUND: " + str(rounds), True, White)
 
-        screen.blit(roundslimit, (windowWidth-350,windowHeight-150))
+        screen.blit(roundslimit, (windowWidth-650,windowHeight-150))
         #BLANKS
         blank_num = 1
         space=0
@@ -320,6 +317,14 @@ def start_screen():
             start_button.draw(screen)
             if start_button not in startingBtns:
                 startingBtns.append(start_button)
+            Halloween_button = Button(Black,  displayDimensions[0]*.4, displayDimensions[1]*.55, displayDimensions[0]*.2, displayDimensions[1]*.1,"Halloween Theme")
+            Halloween_button.draw(screen)
+            if Halloween_button not in startingBtns:
+                startingBtns.append(Halloween_button)
+            Christmas_button = Button(Black,  displayDimensions[0]*.4, displayDimensions[1]*.55, displayDimensions[0]*.2, displayDimensions[1]*.1,"Christmas Theme")
+            Christmas_button.draw(screen)
+            if Christmas_button not in startingBtns:
+                startingBtns.append(Christmas_button)
             help_button = Button(Black,  displayDimensions[0]*.4, displayDimensions[1]*.55, displayDimensions[0]*.2, displayDimensions[1]*.1,"Help")
             help_button.draw(screen)
             if help_button not in startingBtns:
